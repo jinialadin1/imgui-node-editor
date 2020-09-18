@@ -383,6 +383,16 @@ void ax::NodeEditor::CenterNodeOnScreen(NodeId nodeId)
         node->CenterOnScreenInNextFrame();
 }
 
+void ax::NodeEditor::SaveState()
+{
+    s_Editor->SaveState();
+}
+
+void ax::NodeEditor::RestoreState()
+{
+    s_Editor->RestoreState();
+}
+
 void ax::NodeEditor::RestoreNodeState(NodeId nodeId)
 {
     if (auto node = s_Editor->FindNode(nodeId))
