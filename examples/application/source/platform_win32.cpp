@@ -157,7 +157,7 @@ bool PlatformWin32::CloseMainWindow()
     if (m_MainWindowHandle == nullptr)
         return true;
 
-    return CloseWindow(m_MainWindowHandle);
+    return CloseWindow(m_MainWindowHandle) != 0;
 }
 
 void* PlatformWin32::GetMainWindowHandle() const
@@ -188,9 +188,9 @@ bool PlatformWin32::ProcessMainWindowEvents()
     auto fetchMessage = [this](MSG* msg) -> bool
     {
         if (!m_IsMinimized)
-            return PeekMessage(msg, nullptr, 0U, 0U, PM_REMOVE);
+            return PeekMessage(msg, nullptr, 0U, 0U, PM_REMOVE) != 0;
         else
-            return GetMessage(msg, nullptr, 0U, 0U);
+            return GetMessage(msg, nullptr, 0U, 0U) != 0;
     };
 
     MSG msg = {};
