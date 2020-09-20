@@ -40,7 +40,7 @@
 # if PLATFORM(WINDOWS)
 #     define BACKEND_HAVE_IMGUI_WIN32()        1
 # endif
-# if GLFW3_FOUND
+# if HAVE_GLFW3
 #     define BACKEND_HAVE_IMGUI_GLFW()         1
 # endif
 
@@ -73,7 +73,7 @@
 # if PLATFORM(WINDOWS)
 #     define RENDERER_HAVE_IMGUI_DX11()         1
 # endif
-# if OPENGL_FOUND
+# if HAVE_OPENGL
 #     define RENDERER_HAVE_IMGUI_OGL3()         1
 # endif
 

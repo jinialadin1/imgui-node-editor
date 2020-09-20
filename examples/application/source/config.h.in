@@ -1,4 +1,4 @@
 # pragma once
 
-# cmakedefine01 GLFW3_FOUND
-# cmakedefine01 OPENGL_FOUND
+# cmakedefine01 HAVE_GLFW3
+# cmakedefine01 HAVE_OPENGL

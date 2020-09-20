@@ -52,8 +52,8 @@ if (WIN32)
 
     target_link_libraries(application PRIVATE d3d11.lib d3dcompiler.lib d3dx11)
 else()
-    find_package(OpenGL)
-    find_package(glfw3 3)
+    find_package(OpenGL REQUIRED)
+    find_package(glfw3 3.3 REQUIRED)
 
     if (APPLE)
         target_link_libraries(application PRIVATE
@@ -67,6 +67,8 @@ else()
 endif()
 
 if (OpenGL_FOUND)
+    set(HAVE_OPENGL YES)
+
     find_package(gl3w REQUIRED)
     target_include_directories(application PRIVATE ${OPENGL_INCLUDE_DIR})
     target_link_libraries(application PRIVATE ${OPENGL_gl_LIBRARY} gl3w)
@@ -76,13 +78,15 @@ if (OpenGL_FOUND)
     )
 endif()
 
-if (GLFW3_FOUND)
+if (glfw3_FOUND)
+    set(HAVE_GLFW3 YES)
+
     list(APPEND _Application_Sources
         source/imgui_impl_glfw.cpp
         source/imgui_impl_glfw.h
     )
     target_link_libraries(application PRIVATE
-        glfw3
+        glfw
     )
 endif()
 

@@ -3,6 +3,7 @@
 # if RENDERER(IMGUI_OGL3)
 
 # include "platform.h"
+# include <algorithm>
 
 # if PLATFORM(WINDOWS)
 #     define NOMINMAX
@@ -59,7 +60,7 @@ struct RendererOpenGL3 final
     int         GetTextureHeight(ImTextureID texture) override;
 
     Platform*               m_Platform = nullptr;
-    ImVector<ImTexture>     g_Textures;
+    ImVector<ImTexture>     m_Textures;
 };
 
 std::unique_ptr<Renderer> CreateRenderer()
@@ -145,8 +146,8 @@ void RendererOpenGL3::Resize(int width, int height)
 
 ImTextureID RendererOpenGL3::CreateTexture(const void* data, int width, int height)
 {
-    g_Textures.resize(g_Textures.size() + 1);
-    ImTexture& texture = g_Textures.back();
+    m_Textures.resize(m_Textures.size() + 1);
+    ImTexture& texture = m_Textures.back();
 
     // Upload texture to graphics system
     GLint last_texture = 0;
@@ -168,7 +169,7 @@ ImVector<ImTexture>::iterator RendererOpenGL3::FindTexture(ImTextureID texture)
 {
     auto textureID = static_cast<GLuint>(reinterpret_cast<std::intptr_t>(texture));
 
-    return std::find_if(g_Textures.begin(), g_Textures.end(), [textureID](ImTexture& texture)
+    return std::find_if(m_Textures.begin(), m_Textures.end(), [textureID](ImTexture& texture)
     {
         return texture.TextureID == textureID;
     });
@@ -176,27 +177,27 @@ ImVector<ImTexture>::iterator RendererOpenGL3::FindTexture(ImTextureID texture)
 
 void RendererOpenGL3::DestroyTexture(ImTextureID texture)
 {
-    auto textureIt = Application_FindTexture(texture);
-    if (textureIt == g_Textures.end())
+    auto textureIt = FindTexture(texture);
+    if (textureIt == m_Textures.end())
         return;
 
     glDeleteTextures(1, &textureIt->TextureID);
 
-    g_Textures.erase(textureIt);
+    m_Textures.erase(textureIt);
 }
 
 int RendererOpenGL3::GetTextureWidth(ImTextureID texture)
 {
-    auto textureIt = Application_FindTexture(texture);
-    if (textureIt != g_Textures.end())
+    auto textureIt = FindTexture(texture);
+    if (textureIt != m_Textures.end())
         return textureIt->Width;
     return 0;
 }
 
 int RendererOpenGL3::GetTextureHeight(ImTextureID texture)
 {
-    auto textureIt = Application_FindTexture(texture);
-    if (textureIt != g_Textures.end())
+    auto textureIt = FindTexture(texture);
+    if (textureIt != m_Textures.end())
         return textureIt->Height;
     return 0;
 }
