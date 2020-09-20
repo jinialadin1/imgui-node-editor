@@ -147,7 +147,6 @@ void Application::Frame()
     m_Renderer->RenderDrawData(ImGui::GetDrawData());
 
     m_Platform->FinishFrame();
-    m_Renderer->Present();
 }
 
 void Application::SetTitle(const char* title)
