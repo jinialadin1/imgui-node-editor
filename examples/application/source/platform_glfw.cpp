@@ -6,12 +6,12 @@
 # include "application.h"
 # include "renderer.h"
 
+# include <GLFW/glfw3.h>
+
 # if PLATFORM(WINDOWS)
 #     define GLFW_EXPOSE_NATIVE_WIN32
+#     include <GLFW/glfw3native.h>
 # endif
-
-# include <GLFW/glfw3.h>
-# include <GLFW/glfw3native.h>
 
 # include <imgui.h>
 # include "imgui_impl_glfw.h"
