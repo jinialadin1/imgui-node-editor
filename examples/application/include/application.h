@@ -44,6 +44,7 @@ private:
     void Frame();
 
     std::string                 m_Name;
+    std::string                 m_IniFilename;
     std::unique_ptr<Platform>   m_Platform;
     std::unique_ptr<Renderer>   m_Renderer;
     ImGuiContext*               m_Context = nullptr;

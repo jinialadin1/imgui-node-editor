@@ -60,6 +60,7 @@ struct PlatformWin32 final
     HWND            m_MainWindowHandle = nullptr;
     bool            m_IsMinimized = false;
     bool            m_WasMinimized = false;
+    bool            m_CanCloseResult = false;
     Renderer*       m_Renderer = nullptr;
 };
 
@@ -157,7 +158,9 @@ bool PlatformWin32::CloseMainWindow()
     if (m_MainWindowHandle == nullptr)
         return true;
 
-    return CloseWindow(m_MainWindowHandle) != 0;
+    SendMessage(m_MainWindowHandle, WM_CLOSE, 0, 0);
+
+    return m_CanCloseResult;
 }
 
 void* PlatformWin32::GetMainWindowHandle() const
@@ -250,12 +253,13 @@ void PlatformWin32::Quit()
 LRESULT PlatformWin32::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-        return true;
+        return 1;
 
     switch (msg)
     {
         case WM_CLOSE:
-            if (m_Application.CanClose())
+            m_CanCloseResult = m_Application.CanClose();
+            if (m_CanCloseResult)
             {
                 ImGui_ImplWin32_Shutdown();
                 DestroyWindow(hWnd);
