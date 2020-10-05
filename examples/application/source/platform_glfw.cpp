@@ -97,8 +97,12 @@ bool PlatformGLFW::OpenMainWindow(const char* title, int width, int height)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     initializer = &ImGui_ImplGlfw_InitForNone;
 # endif
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
 
-    m_Window = glfwCreateWindow(width < 0 ? 1440 : width, height < 0 ? 800 : height, title, nullptr, nullptr);
+    width  = width  < 0 ? 1440 : width;
+    height = height < 0 ?  800 : height;
+
+    m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!m_Window)
         return false;
 
@@ -115,7 +119,7 @@ bool PlatformGLFW::OpenMainWindow(const char* title, int width, int height)
     {
         auto self = reinterpret_cast<PlatformGLFW*>(glfwGetWindowUserPointer(window));
         if (!self->m_QuitRequested)
-            glfwSetWindowShouldClose(window, self->m_Application.CanClose());
+            self->CloseMainWindow();
     });
 
     glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
@@ -139,6 +143,21 @@ bool PlatformGLFW::OpenMainWindow(const char* title, int width, int height)
             self->m_Renderer->Resize(width, height);
     });
 
+    auto onWindowContentScale = [](GLFWwindow* window, float xscale, float yscale)
+    {
+        auto self = reinterpret_cast<PlatformGLFW*>(glfwGetWindowUserPointer(window));
+
+        float pixelDensity = xscale > yscale ? xscale : yscale;
+
+        self->SetPixelDensity(pixelDensity);
+    };
+
+    glfwSetWindowContentScaleCallback(m_Window, onWindowContentScale);
+
+    float xscale, yscale;
+    glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+    onWindowContentScale(m_Window, xscale, yscale);
+
     glfwMakeContextCurrent(m_Window);
 
     glfwSwapInterval(1); // Enable vsync
@@ -151,11 +170,11 @@ bool PlatformGLFW::CloseMainWindow()
     if (m_Window == nullptr)
         return true;
 
-    ImGui_ImplGlfw_Shutdown();
+    auto canClose = m_Application.CanClose();
 
-    glfwDestroyWindow(m_Window);
+    glfwSetWindowShouldClose(m_Window, canClose ? 1 : 0);
 
-    return glfwWindowShouldClose(m_Window) ? true : false;
+    return canClose;
 }
 
 void* PlatformGLFW::GetMainWindowHandle() const
@@ -191,7 +210,13 @@ bool PlatformGLFW::ProcessMainWindowEvents()
         glfwPollEvents();
 
     if (m_QuitRequested || glfwWindowShouldClose(m_Window))
+    {
+        ImGui_ImplGlfw_Shutdown();
+
+        glfwDestroyWindow(m_Window);
+
         return false;
+    }
 
     return true;
 }
@@ -234,7 +259,8 @@ void PlatformGLFW::FinishFrame()
 void PlatformGLFW::Quit()
 {
     m_QuitRequested = true;
-    glfwDestroyWindow(m_Window);
+
+    glfwPostEmptyEvent();
 }
 
 # endif // BACKEND(IMGUI_GLFW)

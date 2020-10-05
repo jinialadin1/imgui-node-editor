@@ -96,6 +96,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/source/config.h
 )
 
+target_compile_definitions(application PRIVATE
+    #BACKEND_CONFIG=IMGUI_GLFW
+    #RENDERER_CONFIG=IMGUI_OGL3
+)
+
 target_include_directories(application PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/source)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${_Application_Sources})

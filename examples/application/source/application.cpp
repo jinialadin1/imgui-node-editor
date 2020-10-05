@@ -10,25 +10,6 @@ extern "C" {
 }
 
 
-//# if BACKEND(IMGUI_WIN32)
-//#     include "dx11/imgui_impl_win32.h"
-//# endif
-//
-//# if BACKEND(IMGUI_GLFW)
-//#     include <GLFW/glfw3.h>
-//
-//#     include "imgui_impl_glfw.h"
-//# endif
-//
-//# if RENDERER(IMGUI_DX11)
-//#     include "dx11/imgui_impl_dx11.h"
-//# endif
-//
-//# if RENDERER(IMGUI_OGL3)
-//#     include "imgui_impl_opengl3.h"
-//# endif
-
-
 Application::Application(const char* name)
     : Application(name, 0, nullptr)
 {
@@ -73,32 +54,11 @@ bool Application::Create(int width /*= -1*/, int height /*= -1*/)
     io.IniFilename = m_IniFilename.c_str();
     io.LogFilename = nullptr;
 
-    ImFontConfig config;
-    config.OversampleH = 4;
-    config.OversampleV = 4;
-    config.PixelSnapH = false;
-
-    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f, &config);
-    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf", 20.0f, &config);
-    io.Fonts->Build();
-
-    //// Setup ImGui binding
-    //ImGui_ImplWin32_Init(hwnd);
-    //ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-    //AX_SCOPE_EXIT
-    //{
-    //    ImGui_ImplDX11_Shutdown();
-    //    ImGui_ImplWin32_Shutdown();
-    //};
-
     ImGui::StyleColorsDark();
 
-    //ImGuiStyle& style = ImGui::GetStyle();
-    //style.FrameRounding     = 2.0f;
-    //style.WindowRounding    = 0.0f;
-    //style.ScrollbarRounding = 0.0f;
+    RecreateFontAtlas();
 
-    //ImVec4 backgroundColor = ImColor(32, 32, 32, 255);//style.Colors[ImGuiCol_TitleBg];
+    m_Platform->AcknowledgePixelDensityChanged();
 
     OnStart();
 
@@ -124,11 +84,54 @@ int Application::Run()
     return 0;
 }
 
+void Application::RecreateFontAtlas()
+{
+    auto pixelDensity = m_Platform->GetPixelDensity();
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    IM_DELETE(io.Fonts);
+
+    io.Fonts = IM_NEW(ImFontAtlas);
+
+    ImFontConfig config;
+    config.OversampleH = 4;
+    config.OversampleV = 4;
+    config.PixelSnapH = false;
+
+    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f/* * pixelDensity*/, &config);
+    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf",  20.0f/* * pixelDensity*/, &config);
+
+    io.Fonts->Build();
+}
+
 void Application::Frame()
 {
     auto& io = ImGui::GetIO();
 
+    if (m_Platform->HasPixelDensityChanged())
+    {
+        RecreateFontAtlas();
+        m_Platform->AcknowledgePixelDensityChanged();
+    }
+
+    const float pixelDensity = m_Platform->GetPixelDensity();
+
+    if (io.WantSetMousePos)
+    {
+        io.MousePos.x *= pixelDensity;
+        io.MousePos.y *= pixelDensity;
+    }
+
     m_Platform->NewFrame();
+
+    io.MousePos.x /= pixelDensity;
+    io.MousePos.y /= pixelDensity;
+    io.DisplaySize.x /= pixelDensity;
+    io.DisplaySize.y /= pixelDensity;
+    io.DisplayFramebufferScale.x = pixelDensity;
+    io.DisplayFramebufferScale.y = pixelDensity;
+
     m_Renderer->NewFrame();
 
     ImGui::NewFrame();

@@ -41,6 +41,8 @@ struct Application
     virtual bool CanClose() { return true; }
 
 private:
+    void RecreateFontAtlas();
+
     void Frame();
 
     std::string                 m_Name;

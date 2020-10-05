@@ -112,6 +112,8 @@ bool PlatformWin32::ApplicationStart(int argc, char** argv)
         return false;
     }
 
+    ImGui_ImplWin32_EnableDpiAwareness();
+
     return true;
 }
 
@@ -149,6 +151,8 @@ bool PlatformWin32::OpenMainWindow(const char* title, int width, int height)
         m_MainWindowHandle = nullptr;
         return false;
     }
+
+    SetPixelDensity(ImGui_ImplWin32_GetDpiScaleForHwnd(m_MainWindowHandle));
 
     return true;
 }
@@ -285,6 +289,10 @@ LRESULT PlatformWin32::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
             if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
                 return 0;
             break;
+
+        case WM_DPICHANGED:
+            SetPixelDensity(ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
+            return 0;
 
         case WM_DESTROY:
             PostQuitMessage(0);

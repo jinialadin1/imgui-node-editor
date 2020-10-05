@@ -27,6 +27,20 @@ struct Platform
 
     virtual void Quit() = 0;
 
+    bool HasPixelDensityChanged() const { return m_PixelDensityChanged; }
+    void AcknowledgePixelDensityChanged() { m_PixelDensityChanged = false; }
+    float GetPixelDensity() const { return m_PixelDensity; }
+    void SetPixelDensity(float pixelDensity)
+    {
+        if (pixelDensity == m_PixelDensity)
+            return;
+        m_PixelDensity = pixelDensity;
+        m_PixelDensityChanged = true;
+    }
+
+private:
+    bool    m_PixelDensityChanged = false;
+    float   m_PixelDensity = 1.0f;
 };
 
 std::unique_ptr<Platform> CreatePlatform(Application& application);
