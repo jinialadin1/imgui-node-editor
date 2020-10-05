@@ -15,6 +15,7 @@
 #endif
 #include <windows.h>
 #include <tchar.h>
+#include "imgui_extra_keys.h"
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
@@ -33,54 +34,6 @@
 //  2017-10-23: Inputs: Added WM_SYSKEYDOWN / WM_SYSKEYUP handlers so e.g. the VK_MENU key can be read.
 //  2017-10-23: Inputs: Using Win32 ::SetCapture/::GetCapture() to retrieve mouse positions outside the client area when dragging.
 //  2016-11-12: Inputs: Only call Win32 ::SetCursor(NULL) when io.MouseDrawCursor is set.
-
-
-// https://stackoverflow.com/a/8597498
-# include <type_traits>
-# define DECLARE_HAS_NESTED(Name, Member)                                          \
-                                                                                   \
-    template<class T>                                                              \
-    struct has_nested_ ## Name                                                     \
-    {                                                                              \
-        typedef char yes;                                                          \
-        typedef yes(&no)[2];                                                       \
-                                                                                   \
-        template<class U> static yes test(decltype(U::Member)*);                   \
-        template<class U> static no  test(...);                                    \
-                                                                                   \
-        static bool const value = sizeof(test<T>(0)) == sizeof(yes);               \
-    };
-
-# define DECLARE_KEY_TESTER(Key)                                                                    \
-    DECLARE_HAS_NESTED(Key, Key)                                                                    \
-    struct KeyTester_ ## Key                                                                        \
-    {                                                                                               \
-        template <typename T>                                                                       \
-        static int Get(typename std::enable_if<has_nested_ ## Key<ImGuiKey_>::value, T>::type*)     \
-        {                                                                                           \
-            return T::Key;                                                                          \
-        }                                                                                           \
-                                                                                                    \
-        template <typename T>                                                                       \
-        static int Get(typename std::enable_if<!has_nested_ ## Key<ImGuiKey_>::value, T>::type*)    \
-        {                                                                                           \
-            return -1;                                                                              \
-        }                                                                                           \
-    }
-
-DECLARE_KEY_TESTER(ImGuiKey_F);
-DECLARE_KEY_TESTER(ImGuiKey_D);
-
-static inline int GetEnumValueForF()
-{
-    return KeyTester_ImGuiKey_F::Get<ImGuiKey_>(nullptr);
-}
-
-static inline int GetEnumValueForD()
-{
-    return KeyTester_ImGuiKey_D::Get<ImGuiKey_>(nullptr);
-}
-
 
 // Win32 Data
 static HWND                 g_hWnd = 0;

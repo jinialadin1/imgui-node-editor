@@ -39,6 +39,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
+#include "imgui_extra_keys.h"
 
 // GLFW
 #include <GLFW/glfw3.h>
@@ -172,6 +173,13 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
     io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
     io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+
+    int f_index = GetEnumValueForF();
+    int d_index = GetEnumValueForD();
+    if (f_index >= 0)
+        io.KeyMap[f_index] = GLFW_KEY_F;
+    if (d_index >= 0)
+        io.KeyMap[d_index] = GLFW_KEY_D;
 
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;

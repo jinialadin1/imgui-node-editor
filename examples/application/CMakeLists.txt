@@ -4,6 +4,7 @@ set(_Application_Sources
     include/application.h
     source/application.cpp
     source/entry_point.cpp
+    source/imgui_extra_keys.h
     source/config.h.in
     source/setup.h
     source/platform.h
