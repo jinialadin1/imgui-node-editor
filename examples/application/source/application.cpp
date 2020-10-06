@@ -129,8 +129,8 @@ void Application::Frame()
     io.MousePos.y /= pixelDensity;
     io.DisplaySize.x /= pixelDensity;
     io.DisplaySize.y /= pixelDensity;
-    io.DisplayFramebufferScale.x = pixelDensity;
-    io.DisplayFramebufferScale.y = pixelDensity;
+    //io.DisplayFramebufferScale.x = pixelDensity;
+    //io.DisplayFramebufferScale.y = pixelDensity;
 
     m_Renderer->NewFrame();
 
@@ -138,11 +138,19 @@ void Application::Frame()
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
+    const auto windowBorderSize = ImGui::GetStyle().WindowBorderSize;
+    const auto windowRounding   = ImGui::GetStyle().WindowRounding;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::Begin("Content", nullptr, GetWindowFlags());
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, windowBorderSize);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
 
     OnFrame(io.DeltaTime);
 
+    ImGui::PopStyleVar(2);
     ImGui::End();
+    ImGui::PopStyleVar(2);
 
     // Rendering
     m_Renderer->Clear(ImColor(32, 32, 32, 255));

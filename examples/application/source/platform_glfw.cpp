@@ -37,6 +37,8 @@ struct PlatformGLFW final
     void FinishFrame() override;
     void Quit() override;
 
+    void UpdatePixelDensity();
+
     Application&    m_Application;
     GLFWwindow*     m_Window = nullptr;
     bool            m_QuitRequested = false;
@@ -136,27 +138,27 @@ bool PlatformGLFW::OpenMainWindow(const char* title, int width, int height)
         }
     });
 
-    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+    auto onFramebuferSizeChanged = [](GLFWwindow* window, int width, int height)
     {
         auto self = reinterpret_cast<PlatformGLFW*>(glfwGetWindowUserPointer(window));
         if (self->m_Renderer)
+        {
             self->m_Renderer->Resize(width, height);
-    });
-
-    auto onWindowContentScale = [](GLFWwindow* window, float xscale, float yscale)
-    {
-        auto self = reinterpret_cast<PlatformGLFW*>(glfwGetWindowUserPointer(window));
-
-        float pixelDensity = xscale > yscale ? xscale : yscale;
-
-        self->SetPixelDensity(pixelDensity);
+            self->UpdatePixelDensity();
+        }
     };
 
-    glfwSetWindowContentScaleCallback(m_Window, onWindowContentScale);
+    glfwSetFramebufferSizeCallback(m_Window, onFramebuferSizeChanged);
 
-    float xscale, yscale;
-    glfwGetWindowContentScale(m_Window, &xscale, &yscale);
-    onWindowContentScale(m_Window, xscale, yscale);
+    auto onWindowContentScaleChanged = [](GLFWwindow* window, float xscale, float yscale)
+    {
+        auto self = reinterpret_cast<PlatformGLFW*>(glfwGetWindowUserPointer(window));
+        self->UpdatePixelDensity();
+    };
+
+    glfwSetWindowContentScaleCallback(m_Window, onWindowContentScaleChanged);
+
+    UpdatePixelDensity();
 
     glfwMakeContextCurrent(m_Window);
 
@@ -261,6 +263,19 @@ void PlatformGLFW::Quit()
     m_QuitRequested = true;
 
     glfwPostEmptyEvent();
+}
+
+void PlatformGLFW::UpdatePixelDensity()
+{
+# if PLATFORM(MACOS)
+    float scale = 1.0f;
+# else
+    float xscale, yscale;
+    glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+    float scale = xscale > yscale ? xscale : yscale;
+# endif
+
+    SetPixelDensity(scale);
 }
 
 # endif // BACKEND(IMGUI_GLFW)
