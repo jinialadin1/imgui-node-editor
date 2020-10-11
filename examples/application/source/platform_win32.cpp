@@ -53,6 +53,8 @@ struct PlatformWin32 final
     void FinishFrame() override;
     void Quit() override;
 
+    void SetDpiScale(float dpiScale);
+
     LRESULT WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     Application&    m_Application;
@@ -152,7 +154,7 @@ bool PlatformWin32::OpenMainWindow(const char* title, int width, int height)
         return false;
     }
 
-    SetPixelDensity(ImGui_ImplWin32_GetDpiScaleForHwnd(m_MainWindowHandle));
+    SetDpiScale(ImGui_ImplWin32_GetDpiScaleForHwnd(m_MainWindowHandle));
 
     return true;
 }
@@ -254,6 +256,12 @@ void PlatformWin32::Quit()
     PostQuitMessage(0);
 }
 
+void PlatformWin32::SetDpiScale(float dpiScale)
+{
+    SetWindowScale(dpiScale);
+    SetFramebufferScale(dpiScale);
+}
+
 LRESULT PlatformWin32::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
@@ -291,7 +299,7 @@ LRESULT PlatformWin32::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_DPICHANGED:
-            SetPixelDensity(ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
+            SetDpiScale(ImGui_ImplWin32_GetDpiScaleForHwnd(hWnd));
             return 0;
 
         case WM_DESTROY:

@@ -58,7 +58,8 @@ bool Application::Create(int width /*= -1*/, int height /*= -1*/)
 
     RecreateFontAtlas();
 
-    m_Platform->AcknowledgePixelDensityChanged();
+    m_Platform->AcknowledgeWindowScaleChanged();
+    m_Platform->AcknowledgeFramebufferScaleChanged();
 
     OnStart();
 
@@ -86,8 +87,6 @@ int Application::Run()
 
 void Application::RecreateFontAtlas()
 {
-    auto pixelDensity = m_Platform->GetPixelDensity();
-
     ImGuiIO& io = ImGui::GetIO();
 
     IM_DELETE(io.Fonts);
@@ -99,8 +98,8 @@ void Application::RecreateFontAtlas()
     config.OversampleV = 4;
     config.PixelSnapH = false;
 
-    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f/* * pixelDensity*/, &config);
-    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf",  20.0f/* * pixelDensity*/, &config);
+    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f, &config);
+    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf",  20.0f, &config);
 
     io.Fonts->Build();
 }
@@ -109,28 +108,33 @@ void Application::Frame()
 {
     auto& io = ImGui::GetIO();
 
-    if (m_Platform->HasPixelDensityChanged())
+    if (m_Platform->HasWindowScaleChanged())
+        m_Platform->AcknowledgeWindowScaleChanged();
+
+    if (m_Platform->HasFramebufferScaleChanged())
     {
         RecreateFontAtlas();
-        m_Platform->AcknowledgePixelDensityChanged();
+        m_Platform->AcknowledgeFramebufferScaleChanged();
     }
 
-    const float pixelDensity = m_Platform->GetPixelDensity();
+    const float windowScale      = m_Platform->GetWindowScale();
+    const float framebufferScale = m_Platform->GetFramebufferScale();
 
     if (io.WantSetMousePos)
     {
-        io.MousePos.x *= pixelDensity;
-        io.MousePos.y *= pixelDensity;
+        io.MousePos.x *= windowScale;
+        io.MousePos.y *= windowScale;
     }
 
     m_Platform->NewFrame();
 
-    io.MousePos.x /= pixelDensity;
-    io.MousePos.y /= pixelDensity;
-    io.DisplaySize.x /= pixelDensity;
-    io.DisplaySize.y /= pixelDensity;
-    //io.DisplayFramebufferScale.x = pixelDensity;
-    //io.DisplayFramebufferScale.y = pixelDensity;
+    io.MousePos.x    /= windowScale;
+    io.MousePos.y    /= windowScale;
+    io.DisplaySize.x /= windowScale;
+    io.DisplaySize.y /= windowScale;
+
+    io.DisplayFramebufferScale.x = framebufferScale;
+    io.DisplayFramebufferScale.y = framebufferScale;
 
     m_Renderer->NewFrame();
 

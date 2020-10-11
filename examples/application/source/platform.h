@@ -27,20 +27,34 @@ struct Platform
 
     virtual void Quit() = 0;
 
-    bool HasPixelDensityChanged() const { return m_PixelDensityChanged; }
-    void AcknowledgePixelDensityChanged() { m_PixelDensityChanged = false; }
-    float GetPixelDensity() const { return m_PixelDensity; }
-    void SetPixelDensity(float pixelDensity)
+    bool  HasWindowScaleChanged() const { return m_WindowScaleChanged; }
+    void  AcknowledgeWindowScaleChanged() { m_WindowScaleChanged = false; }
+    float GetWindowScale() const { return m_WindowScale; }
+    void  SetWindowScale(float windowScale)
     {
-        if (pixelDensity == m_PixelDensity)
+        if (windowScale == m_WindowScale)
             return;
-        m_PixelDensity = pixelDensity;
-        m_PixelDensityChanged = true;
+        m_WindowScale = windowScale;
+        m_WindowScaleChanged = true;
     }
 
+    bool  HasFramebufferScaleChanged() const { return m_FramebufferScaleChanged; }
+    void  AcknowledgeFramebufferScaleChanged() { m_FramebufferScaleChanged = false; }
+    float GetFramebufferScale() const { return m_FramebufferScale; }
+    void  SetFramebufferScale(float framebufferScale)
+    {
+        if (framebufferScale == m_FramebufferScale)
+            return;
+        m_FramebufferScale = framebufferScale;
+        m_FramebufferScaleChanged = true;
+    }
+
+
 private:
-    bool    m_PixelDensityChanged = false;
-    float   m_PixelDensity = 1.0f;
+    bool    m_WindowScaleChanged = false;
+    float   m_WindowScale = 1.0f;
+    bool    m_FramebufferScaleChanged = false;
+    float   m_FramebufferScale = 1.0f;
 };
 
 std::unique_ptr<Platform> CreatePlatform(Application& application);

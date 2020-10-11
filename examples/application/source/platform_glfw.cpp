@@ -267,15 +267,27 @@ void PlatformGLFW::Quit()
 
 void PlatformGLFW::UpdatePixelDensity()
 {
-# if PLATFORM(MACOS)
-    float scale = 1.0f;
-# else
     float xscale, yscale;
     glfwGetWindowContentScale(m_Window, &xscale, &yscale);
     float scale = xscale > yscale ? xscale : yscale;
-# endif
 
-    SetPixelDensity(scale);
+    //int xwindow, ywindow;
+    //glfwGetWindowSize(m_Window, &xwindow, &ywindow);
+
+    //int xframebuffer, yframebuffer;
+    //glfwGetFramebufferSize(m_Window, &xframebuffer, &yframebuffer);
+
+    //float xframebufferScale = xwindow ? static_cast<float>(xframebuffer) / xwindow : 1.0f;
+    //float yframebufferScale = ywindow ? static_cast<float>(yframebuffer) / ywindow : 1.0f;
+    //float framebufferScale = xframebufferScale > yframebufferScale ? xframebufferScale : yframebufferScale;
+
+    //float windowScale = scale ? framebufferScale / scale : 1.0f;
+    //SetWindowScale(windowScale);
+
+    //SetFramebufferScale(framebufferScale);
+
+    SetWindowScale(scale);
+    SetFramebufferScale(scale);
 }
 
 # endif // BACKEND(IMGUI_GLFW)
