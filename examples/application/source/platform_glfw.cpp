@@ -271,23 +271,20 @@ void PlatformGLFW::UpdatePixelDensity()
     glfwGetWindowContentScale(m_Window, &xscale, &yscale);
     float scale = xscale > yscale ? xscale : yscale;
 
-    //int xwindow, ywindow;
-    //glfwGetWindowSize(m_Window, &xwindow, &ywindow);
+    int xwindow, ywindow;
+    glfwGetWindowSize(m_Window, &xwindow, &ywindow);
 
-    //int xframebuffer, yframebuffer;
-    //glfwGetFramebufferSize(m_Window, &xframebuffer, &yframebuffer);
+    int xframebuffer, yframebuffer;
+    glfwGetFramebufferSize(m_Window, &xframebuffer, &yframebuffer);
 
-    //float xframebufferScale = xwindow ? static_cast<float>(xframebuffer) / xwindow : 1.0f;
-    //float yframebufferScale = ywindow ? static_cast<float>(yframebuffer) / ywindow : 1.0f;
-    //float framebufferScale = xframebufferScale > yframebufferScale ? xframebufferScale : yframebufferScale;
+    float xframebufferScale = xwindow ? static_cast<float>(xframebuffer) / xwindow : 1.0f;
+    float yframebufferScale = ywindow ? static_cast<float>(yframebuffer) / ywindow : 1.0f;
+    float framebufferScale = xframebufferScale > yframebufferScale ? xframebufferScale : yframebufferScale;
 
-    //float windowScale = scale ? framebufferScale / scale : 1.0f;
-    //SetWindowScale(windowScale);
+    float windowScale = framebufferScale ? scale / framebufferScale : 1.0f;
 
-    //SetFramebufferScale(framebufferScale);
-
-    SetWindowScale(scale);
-    SetFramebufferScale(scale);
+    SetWindowScale(windowScale);
+    SetFramebufferScale(framebufferScale);
 }
 
 # endif // BACKEND(IMGUI_GLFW)
