@@ -271,19 +271,16 @@ void PlatformGLFW::UpdatePixelDensity()
     glfwGetWindowContentScale(m_Window, &xscale, &yscale);
     float scale = xscale > yscale ? xscale : yscale;
 
-    int xwindow, ywindow;
-    glfwGetWindowSize(m_Window, &xwindow, &ywindow);
+# if PLATFORM(WINDOWS)
+    float windowScale      = scale;
+    float framebufferScale = scale;
+# else
+    float windowScale      = 1.0f;
+    float framebufferScale = scale;
+# endif
 
-    int xframebuffer, yframebuffer;
-    glfwGetFramebufferSize(m_Window, &xframebuffer, &yframebuffer);
+    SetWindowScale(windowScale); // this is how windows is scaled, not window content
 
-    float xframebufferScale = xwindow ? static_cast<float>(xframebuffer) / xwindow : 1.0f;
-    float yframebufferScale = ywindow ? static_cast<float>(yframebuffer) / ywindow : 1.0f;
-    float framebufferScale = xframebufferScale > yframebufferScale ? xframebufferScale : yframebufferScale;
-
-    float windowScale = framebufferScale ? scale / framebufferScale : 1.0f;
-
-    SetWindowScale(windowScale);
     SetFramebufferScale(framebufferScale);
 }
 
