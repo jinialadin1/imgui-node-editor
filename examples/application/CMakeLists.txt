@@ -60,7 +60,6 @@ else()
         target_link_libraries(application PRIVATE
             "-framework CoreFoundation"
             "-framework Cocoa"
-            #"-framework OpenGL"
             "-framework IOKit"
             "-framework CoreVideo"
         )
